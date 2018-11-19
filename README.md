@@ -1,7 +1,7 @@
 # snakegame
-At first we need make a interface\n
-next\n
-food function
+#At first we need make a interface
+#next
+#food function
 next
 snake function
 next
