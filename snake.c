@@ -3,8 +3,7 @@
 #define high 40
 #define weight 80
 
-
-
+void interface();
 
 
 
@@ -12,21 +11,29 @@ int main()
 {
         initscr();
         clear();
-        move(0,0);
+        interface();
+        refresh();
+        getch();
+        endwin();
+
+}
+
+void interface()
+{
+         move(0,0);
         addstr("Weclome to snake game");
         move(1,0);
         addstr("Player:");
-        move(1,8);
+        move(1,18);
         addstr("Score:");
-        move(1,15);
+        move(1,25);
         addstr("Level:");
         move(2,0);
         int i=0,j=0;
         for(;i<weight+1;i++)
            addstr("-");
            addstr("\n");
-
-        for(;j<high;j++)
+           for(;j<high;j++)
         {
                 addstr("|");
                 for(i=1;i<weight;i++)
@@ -38,10 +45,6 @@ int main()
          for(i=0;i<weight+1;i++)
            addstr("-");
            addstr("\n");
-
-refresh();
-getch();
-endwin();
 
 }
 
