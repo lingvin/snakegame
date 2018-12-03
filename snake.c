@@ -29,7 +29,7 @@ typedef struct node
 
 
 struct coord direct;
-struct node *food;
+struct coord food;
 struct node *head;
 struct node *tail;
 struct node *temp;
@@ -67,17 +67,17 @@ int main()
         initsnake();
         signal(SIGALRM,printrefresh);
         getInput();
-	refresh(); 
-	sleep(5);        
+	       
 	endwin();
 	
 	return 0;
 }
 void initsnake()
 {
+	
  	noecho(); 
 	curs_set(0);
-	food = (node*)malloc(sizeof(node));
+
 
         interface();
 	srand((unsigned int)time(0));
@@ -86,8 +86,8 @@ void initsnake()
 	ch='d';
 	level=0;
 	time1=0;
-	food->x=rand()%weight-1;
-	food->y=rand()%high-1;
+	food.x=rand()%(weight-2)+1;
+	food.y=rand()%(high-2)+4;
 	creatLink();
         set_ticker(5);
 
@@ -145,7 +145,7 @@ void snakeInformation()
     	if(1 != time1 % 50)
          return;
     	move(1,6);
-   	 printw("%d:%d:%d %c", hour, minute, second);
+   	 printw("%d:%d:%d", hour, minute, second);
     	second++;
     	if(second > N)
     	 {
@@ -161,7 +161,7 @@ void snakeInformation()
     	printw("%d", length);
     	move(1,37);
     	level = length / 5+ 1;
-    	printw("level: %d", level);
+    	printw("%d", level);
 }
 void  printS_b()
 {
@@ -169,11 +169,11 @@ void  printS_b()
         return;
 
         bool lenChange = false; 
-    	move(food->y, food->x);
+    	move(food.y, food.x);
     	printw("*");
     if((weight==head->next->x && 1==direct.x)
         || (0==head->next->x && -1==direct.x)
-        || (high==head->next->y && 1==direct.y)
+        || (high+2==head->next->y && 1==direct.y)
         || (2==head->next->y && -1==direct.y))
     {
         gameover(1);
@@ -186,7 +186,7 @@ void  printS_b()
         return;
     }
     insertNode(head->next->x+direct.x, head->next->y+direct.y);
-    if(head->next->x==food->x && head->next->y==food->y)
+    if(head->next->x==food.x && head->next->y==food.y)
     {
         lenChange = true;
         length++;  
@@ -195,8 +195,8 @@ void  printS_b()
             gameover(3);
             return;
         }
- 	food->x=rand()%weight-1;
-	food->y=rand()%high-1;
+ 	food.x=rand()%(weight-2)+1;
+	food.y=rand()%(high-2)+4;
 	}
     if(!lenChange)
     {
@@ -214,6 +214,7 @@ void printrefresh()
         printS_b();
         refresh(); 
 }
+
 void getInput()
 {
         while(1)
@@ -315,3 +316,7 @@ void deleteLink()
     free(head);
     free(tail);
 }
+
+
+
+
