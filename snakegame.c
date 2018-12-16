@@ -50,7 +50,7 @@ void gameover(int i);
 
 
 
-
+int life=1;
 int ch;
 int time1;
 int level;
@@ -171,10 +171,16 @@ void  printS_b()
         bool lenChange = false; 
     	move(food.y, food.x);
     	printw("*");
-    if((weight==head->next->x && 1==direct.x)
-        || (0==head->next->x && -1==direct.x)
+	if(life==0)
+	{
+	endwin();
+	exit(0);
+	}
+	else{
+    if((weight-1==head->next->x && 1==direct.x)
+        || (1==head->next->x && -1==direct.x)
         || (high+2==head->next->y && 1==direct.y)
-        || (2==head->next->y && -1==direct.y))
+        || (3==head->next->y && -1==direct.y))
     {
         gameover(1);
         return;
@@ -186,6 +192,7 @@ void  printS_b()
         return;
     }
     insertNode(head->next->x+direct.x, head->next->y+direct.y);
+	
     if(head->next->x==food.x && head->next->y==food.y)
     {
         lenChange = true;
@@ -206,6 +213,7 @@ void  printS_b()
     }
 	move(head->next->y, head->next->x);
         printw("#");
+}
 }
 void printrefresh()
 {
@@ -271,9 +279,9 @@ void gameover(int i)
         addstr("YOU WIN");
 
     
-	
- 	set_ticker(0);       
-    	deleteLink();   
+	      
+    	deleteLink(); 
+ 	set_ticker(0);   
 }
 void creatLink()
 {
@@ -315,4 +323,6 @@ void deleteLink()
     head->next = tail->pre = NULL;
     free(head);
     free(tail);
+	life =0;
+	
 }
