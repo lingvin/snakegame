@@ -145,7 +145,7 @@ void snakeInformation()
     	if(1 != time1 % 50)
          return;
     	move(1,6);
-   	 printw("%d:%d:%d", hour, minute, second);
+   	 printf("%d:%d:%d", hour, minute, second);
     	second++;
     	if(second > N)
     	 {
@@ -158,10 +158,10 @@ void snakeInformation()
         	hour++;
     	}
     	move(1, 26);
-    	printw("%d", length);
+    	printf("%d", length);
     	move(1,37);
     	level = length / 5+ 1;
-    	printw("%d", level);
+    	printf("%d", level);
 }
 void  printS_b()
 {
@@ -170,7 +170,7 @@ void  printS_b()
 
         bool lenChange = false; 
     	move(food.y, food.x);
-    	printw("*");
+    	printf("*");
 	if(life==0)
 	{
 	endwin();
@@ -208,11 +208,11 @@ void  printS_b()
     if(!lenChange)
     {
         move(tail->pre->y, tail->pre->x);
-        printw(" ");
+        printf(" ");
         deleteNode();
     }
 	move(head->next->y, head->next->x);
-        printw("#");
+        printf("#");
 }
 }
 void printrefresh()
