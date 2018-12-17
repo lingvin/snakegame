@@ -6,10 +6,14 @@
 #include<unistd.h>
 #include<signal.h>
 #include<time.h>
-#define high 40
-#define weight 80
-#define N 60
 
+
+#define N 60
+#define weight 40 // == length
+#define high 20 // == height
+#define TRUE 1
+#define FALSE 0
+#define RAISE_UP 1
 
 
 typedef struct coord
@@ -58,20 +62,25 @@ int hour;
 int minute;
 int second;
 int length;
+int max_row;
+int max_col;
 
+int end_flag = 0; // for game end check
 
 int main()
 {
-	
         initscr();
         initsnake();
-        signal(SIGALRM,printrefresh);
+		signal(SIGALRM,printrefresh);
         getInput();
 	       
 	endwin();
 	
 	return 0;
 }
+
+
+
 void initsnake()
 {
 	
@@ -79,7 +88,7 @@ void initsnake()
 	curs_set(0);
 
 
-        interface();
+    interface();
 	srand((unsigned int)time(0));
 	direct.x=1;
 	direct.y=0;
@@ -89,9 +98,12 @@ void initsnake()
 	food.x=rand()%(weight-2)+1;
 	food.y=rand()%(high-2)+4;
 	creatLink();
-        set_ticker(5);
+    set_ticker(10);
 
 }
+
+
+
 void interface()
 {
         move(0,0);
@@ -117,11 +129,18 @@ void interface()
         }
 
          for(i=0;i<weight+1;i++)
-           addstr("-");
+		 {
+			 standout();
+			 addstr(" ");
+			 standend();
+		 }
            addstr("\n");
 
 
 }
+
+
+
 int set_ticker(int n_msecs)
 {
     struct itimerval new_timeset;
@@ -137,6 +156,8 @@ int set_ticker(int n_msecs)
     return setitimer(ITIMER_REAL, &new_timeset, NULL);
 }
 
+
+
 void snakeInformation()
 {
 	time1++;
@@ -145,7 +166,7 @@ void snakeInformation()
     	if(1 != time1 % 50)
          return;
     	move(1,6);
-   	 printf("%d:%d:%d", hour, minute, second);
+   	 printw("%d:%d:%d", hour, minute, second);
     	second++;
     	if(second > N)
     	 {
@@ -158,69 +179,88 @@ void snakeInformation()
         	hour++;
     	}
     	move(1, 26);
-    	printf("%d", length);
+    	printw("%d", length);
     	move(1,37);
-    	level = length / 5+ 1;
-    	printf("%d", level);
+    	level = length / 3 + 1; // level setting
+    	printw("%d", level);
 }
+
+
 void  printS_b()
 {
-	 if(1 != time1 % (30-level))
+	 if(1 != time1 % (50-level))
         return;
 
         bool lenChange = false; 
-    	move(food.y, food.x);
-    	printf("*");
-	if(life==0)
+    	move(food.y, food.x); // food point set
+    	standout();
+		printw("*"); // food shape define
+		standend();
+	if(life==0) // life for re-game
 	{
-	endwin();
-	exit(0);
+		sleep(5);
+		endwin();
+		exit(0);
 	}
-	else{
-    if((weight-1==head->next->x && 1==direct.x)
+	else
+	{
+		if((weight-1==head->next->x && 1==direct.x)
         || (1==head->next->x && -1==direct.x)
         || (high+2==head->next->y && 1==direct.y)
-        || (3==head->next->y && -1==direct.y))
-    {
-        gameover(1);
-        return;
-    }
-
-    if('#' == mvinch(head->next->y+direct.y, head->next->x+direct.x) )
-    {
-        gameover(2);
-        return;
-    }
-    insertNode(head->next->x+direct.x, head->next->y+direct.y);
-	
-    if(head->next->x==food.x && head->next->y==food.y)
-    {
-        lenChange = true;
-        length++;  
-        if(length >= 50)
-        {
-            gameover(3);
+        || (3==head->next->y && -1==direct.y) )
+		{
+			gameover(1); // meet wall so end game
+			return;
+		}
+		
+		if('#' == mvinch(head->next->y+direct.y, head->next->x+direct.x) )
+		{
+			gameover(2); // meet body so end game
+			return;
+		}
+		
+		insertNode(head->next->x+direct.x, head->next->y+direct.y);
+		
+		if(head->next->x==food.x && head->next->y==food.y)
+		{
+			lenChange = true;
+			length++;
+			if(length >= 100)
+			{ // snake's max length is 100
+				gameover(3); // too long so end game
             return;
-        }
- 	food.x=rand()%(weight-2)+1;
-	food.y=rand()%(high-2)+4;
-	}
-    if(!lenChange)
-    {
+			}
+			
+			food.x=rand()%(weight-2)+1;
+			food.y=rand()%(high-2)+4;
+		}
+		
+		if(!lenChange)
+		{
         move(tail->pre->y, tail->pre->x);
-        printf(" ");
+        printw(" ");
         deleteNode();
-    }
-	move(head->next->y, head->next->x);
-        printf("#");
+		}
+		
+		move(head->next->y, head->next->x);
+		printw("#");
+	}
+
+
+
 }
-}
+
+
 void printrefresh()
 {
         signal(SIGALRM, printrefresh);
-	snakeInformation();
+		snakeInformation();
         printS_b();
-        refresh(); 
+        refresh(); // view total images();
+
+		//if (end_flag == TRUE)
+		//	signal(SIGALRM, printrefresh);
+
 }
 
 void getInput()
@@ -228,42 +268,46 @@ void getInput()
         while(1)
          {
                 ch= getch();
-                if('a'==ch)
+                
+				if('a'==ch)
                 {
-			if(direct.x!=1)
-				{
+					if(direct.x!=1)
+					{
                  	 	 direct.x=-1;
                  		 direct.y=0;
-				}
+					}
                 }
                 else if('s'==ch)
                 {
-			if(direct.y!=-1)
-				{
+					if(direct.y!=-1)
+					{
                  		 direct.x=0;
                 		 direct.y=1;
-				}
+					}
                 }
                  else if('d'==ch)
-                {
-			if(direct.x!=-1)
-				{
+				 {
+					 if(direct.x!=-1)
+					 {
                 		 direct.x=1;
                 		 direct.y=0;
-				}
+					 }
                 }
                  else if('w'==ch)
                 {
-			if(direct.y!=1)
-				{
+					if(direct.y!=1)
+					{
                 		 direct.x=0;
                 		 direct.y=-1;
-				}
+					}
                 }
                  set_ticker(5);
  
         }
 }
+
+
+
 void gameover(int i)
 {
   	 move(0, 0);
@@ -277,12 +321,13 @@ void gameover(int i)
         addstr("Game over");
     else if(3 == i)
         addstr("YOU WIN");
-
-    
 	      
     	deleteLink(); 
- 	set_ticker(0);   
+ 	set_ticker(5);  
+
 }
+
+
 void creatLink()
 {
     node *temp = (node *)malloc( sizeof(node) );
@@ -323,6 +368,6 @@ void deleteLink()
     head->next = tail->pre = NULL;
     free(head);
     free(tail);
-	life =0;
+	life -=1;
 	
 }
