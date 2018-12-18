@@ -8,7 +8,7 @@
 #include<time.h>
 
 
-#define N 60
+#define N 60 // for 1 hour = 3600 sec check
 #define weight 40 // == length
 #define high 20 // == height
 #define TRUE 1
@@ -32,12 +32,13 @@ typedef struct node
 
 
 
-struct coord direct;
-struct coord food;
-struct node *head;
-struct node *tail;
-struct node *temp;
-struct node *temp2;
+struct coord direct; // for next direction
+struct coord food; // for food coordinate
+struct node *head; // for snake's head
+struct node *tail; // for snake's tail
+struct node *temp; // for temp
+struct node *temp2; // for temp2
+
 void initsnake();
 void interface();
 void getInput();
@@ -54,27 +55,26 @@ void gameover(int i);
 
 
 
-int life=1;
-int ch;
-int time1;
-int level;
-int hour;
-int minute;
-int second;
-int length;
-int max_row;
+int life=1; // for cheking snake alive
+int ch; //
+int time1; // know for time 
+int level; // level count
+int hour; // for hour
+int minute; // for minutes
+int second; // for seconds
+int length; // for snake body's length
+int max_row; 
 int max_col;
 
 int end_flag = 0; // for game end check
 
 int main()
 {
-        initscr();
-        initsnake();
-		signal(SIGALRM,printrefresh);
-        getInput();
-	       
-	endwin();
+        initscr(); // start curses
+        initsnake(); // initialize snkae
+		signal(SIGALRM,printrefresh); // check SIGALRM, run printrefresh
+        getInput(); // get user stdin
+	    endwin(); // end curses
 	
 	return 0;
 }
@@ -84,21 +84,20 @@ int main()
 void initsnake()
 {
 	
- 	noecho(); 
-	curs_set(0);
+ 	noecho();  // no echo mode
+	curs_set(0);  // curse point set 0
 
-
-    interface();
-	srand((unsigned int)time(0));
-	direct.x=1;
-	direct.y=0;
-	ch='d';
-	level=0;
-	time1=0;
-	food.x=rand()%(weight-2)+1;
-	food.y=rand()%(high-2)+4;
-	creatLink();
-    set_ticker(10);
+    interface(); // image making for interface
+	srand((unsigned int)time(0)); // for random number
+	direct.x=1; // initialize next cols = 1
+	direct.y=0; // initialize next rows = 0
+	ch='d'; // initialize inputching ch = 'd'
+	level=0; // initialize start level = 0
+	time1=0; // initialize time1 = 0
+	food.x=rand()%(weight-2)+1; // food x-coordinates
+	food.y=rand()%(high-2)+4; // food y-coordinates
+	creatLink(); //
+    set_ticker(10); // 
 
 }
 
@@ -135,8 +134,6 @@ void interface()
 			 standend();
 		 }
            addstr("\n");
-
-
 }
 
 
@@ -159,14 +156,14 @@ int set_ticker(int n_msecs)
 
 
 void snakeInformation()
-{
-	time1++;
+{ // view game information status at top line
+	time1++; // end time
     	if(time1 >= 1000000)       
          time1 = 0;
     	if(1 != time1 % 50)
          return;
     	move(1,6);
-   	 printf("%d:%d:%d", hour, minute, second);
+   	 printf("%d:%d:%d", hour, minute, second); // view time status bar
     	second++;
     	if(second > N)
     	 {
@@ -179,15 +176,23 @@ void snakeInformation()
         	hour++;
     	}
     	move(1, 26);
-    	printf("%d", length);
+    	printf("%d", length); // view users score status bar
     	move(1,37);
-    	level = length / 3 + 1; // level setting
-    	printf("%d", level);
+    	level = length / 3 + 1; // game level difficulty setting
+    	printf("%d", level); // view now game difficulty
 }
 
 
 void  printS_b()
-{
+{ 
+/* 
+1. setting for food view 
+2. check snake's life to game end
+3. setting for game over image view
+4. modify snake's moving using insertnode, deletenode
+5. check snake eat food. if eating, grow up snake 
+
+*/
 	 if(1 != time1 % (50-level))
         return;
 
@@ -198,9 +203,9 @@ void  printS_b()
 		standend();
 	if(life==0) // life for re-game
 	{
-		sleep(5);
-		endwin();
-		exit(0);
+		sleep(5); // crying..
+		endwin(); // end curses
+		exit(0); // this game break!!!!!!!!
 	}
 	else
 	{
@@ -214,7 +219,7 @@ void  printS_b()
 		}
 		
 		if('#' == mvinch(head->next->y+direct.y, head->next->x+direct.x) )
-		{
+		{ // snake meet itself, uroboroth?
 			gameover(2); // meet body so end game
 			return;
 		}
@@ -222,28 +227,28 @@ void  printS_b()
 		insertNode(head->next->x+direct.x, head->next->y+direct.y);
 		
 		if(head->next->x==food.x && head->next->y==food.y)
-		{
-			lenChange = true;
-			length++;
+		{ // congratuation!! snake eat food!!
+			lenChange = true; // snake growing!!
+			length++; // snake grow up!
 			if(length >= 100)
 			{ // snake's max length is 100
 				gameover(3); // too long so end game
             return;
 			}
 			
-			food.x=rand()%(weight-2)+1;
-			food.y=rand()%(high-2)+4;
+			food.x=rand()%(weight-2)+1; // create next food x-coordinate
+			food.y=rand()%(high-2)+4; // create next food y-coordinate
 		}
 		
-		if(!lenChange)
+		if(!lenChange) // only use snake hungry
 		{
         move(tail->pre->y, tail->pre->x);
-        printf(" ");
-        deleteNode();
+        printf(" "); 
+        deleteNode(); // snake keep moving....
 		}
 		
 		move(head->next->y, head->next->x);
-		printf("#");
+		printf("#"); // set snake's image
 	}
 
 
@@ -254,12 +259,9 @@ void  printS_b()
 void printrefresh()
 {
         signal(SIGALRM, printrefresh);
-		snakeInformation();
+		snakeInformation(); // setting for view game information status at top line
         printS_b();
         refresh(); // view total images();
-
-		//if (end_flag == TRUE)
-		//	signal(SIGALRM, printrefresh);
 
 }
 
@@ -269,42 +271,47 @@ void getInput()
          {
                 ch= getch();
                 
-				if('a'==ch)
+                switch(ch)
                 {
-					if(direct.x!=1)
-					{
-                 	 	 direct.x=-1;
-                 		 direct.y=0;
-					}
-                }
-                else if('s'==ch)
-                {
-					if(direct.y!=-1)
-					{
-                 		 direct.x=0;
-                		 direct.y=1;
-					}
-                }
-                 else if('d'==ch)
-				 {
-					 if(direct.x!=-1)
-					 {
-                		 direct.x=1;
-                		 direct.y=0;
-					 }
-                }
-                 else if('w'==ch)
-                {
-					if(direct.y!=1)
-					{
-                		 direct.x=0;
-                		 direct.y=-1;
-					}
+                    case 'a' : 
+                        if(direct.x!=1)
+                        {
+                            direct.x=-1;
+                            direct.y=0;
+                        }
+                        break;
+
+                    case 's' :
+                        if(direct.y!=-1)
+                        {
+                            direct.x=0;
+                            direct.y=1;
+                        }
+                        break;
+
+                    case 'd' :
+                        if(direct.x!=-1)
+                        {
+                            direct.x=1;
+                            direct.y=0;
+                        }
+                        break;
+
+                    case 'w' :
+                        if(direct.y!=1)
+                        {
+                            direct.x=0;
+                            direct.y=-1;
+                        }
+                        break;
+
+                    default :
+                        break;
                 }
                  set_ticker(5);
  
         }
-}
+} // check user input, user control snake
 
 
 
@@ -330,29 +337,32 @@ void gameover(int i)
 
 void creatLink()
 {
-    node *temp = (node *)malloc( sizeof(node) );
-    head = (node *)malloc( sizeof(node) );
-    tail = (node *)malloc( sizeof(node) );
-    temp->x = weight/2;
-    temp->y = high/2;
-    head->pre = tail->next = NULL;
-    head->next = temp;
-    temp->next = tail;
-    tail->pre = temp;
+    node *temp = (node *)malloc( sizeof(node) ); 
+    head = (node *)malloc( sizeof(node) ); // dynamic allocate memory to head
+    tail = (node *)malloc( sizeof(node) ); // dynamic allocate memory to tail
+    temp->x = weight/2; // set starting x-coordinate point
+    temp->y = high/2; // set starting y-coordinate point
+    head->pre = tail->next = NULL; // 
+    head->next = temp; // head link to starting point
+    tail->pre = temp; 
+    temp->next = tail; 
     temp->pre = head;
-}
+} // snake body node making
+
 void insertNode(int x, int y)
 {
     node *temp = (node *)malloc( sizeof(node) );
-    temp->x = x;
-    temp->y = y;
-    temp->next = head->next;
-    head->next = temp;
+    temp->x = x; // save snake's future head x-coordinate
+    temp->y = y; // save snake's future head y-coordinate
+    temp->next = head->next; // head->next = unknown world
+    head->next = temp; 
     temp->pre = head;
     temp->next->pre = temp;
+    //link snake's next vector and snake's head coordinate finished
 }
+
 void deleteNode()
-{
+{ // snake removing more and more...
     node *temp = tail->pre;
     node *temp2 = temp->pre;
     temp2->next = tail;
@@ -361,13 +371,13 @@ void deleteNode()
     free(temp);
     temp = NULL;
 }
+
 void deleteLink()
-{
+{ // snake destroy
     while(head->next != tail)
         deleteNode();
     head->next = tail->pre = NULL;
     free(head);
     free(tail);
-	life -=1;
-	
+	life -=1; // snake die!!
 }
