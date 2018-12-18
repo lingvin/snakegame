@@ -166,7 +166,7 @@ void snakeInformation()
     	if(1 != time1 % 50)
          return;
     	move(1,6);
-   	 printw("%d:%d:%d", hour, minute, second);
+   	 printf("%d:%d:%d", hour, minute, second);
     	second++;
     	if(second > N)
     	 {
@@ -179,10 +179,10 @@ void snakeInformation()
         	hour++;
     	}
     	move(1, 26);
-    	printw("%d", length);
+    	printf("%d", length);
     	move(1,37);
     	level = length / 3 + 1; // level setting
-    	printw("%d", level);
+    	printf("%d", level);
 }
 
 
@@ -194,7 +194,7 @@ void  printS_b()
         bool lenChange = false; 
     	move(food.y, food.x); // food point set
     	standout();
-		printw("*"); // food shape define
+		printf("*"); // food shape define
 		standend();
 	if(life==0) // life for re-game
 	{
@@ -238,12 +238,12 @@ void  printS_b()
 		if(!lenChange)
 		{
         move(tail->pre->y, tail->pre->x);
-        printw(" ");
+        printf(" ");
         deleteNode();
 		}
 		
 		move(head->next->y, head->next->x);
-		printw("#");
+		printf("#");
 	}
 
 
